@@ -5,13 +5,13 @@ let currentMode = 'work'; // 'work' or 'break'
 
 // Audio Controller
 const workMusicTracks = [
-    'music)1.mp3',
-    'music)2.mp3',
-    'music)3.mp3',
-    'music)4.mp3',
-    'music)5.mp3'
+    '/music)1.mp3',
+    '/music)2.mp3',
+    '/music)3.mp3',
+    '/music)4.mp3',
+    '/music)5.mp3'
 ];
-const breakMusicTrack = 'BreakMusic.mp3';
+const breakMusicTrack = '/BreakMusic.mp3';
 let currentAudio = null;
 
 const playMusic = (mode) => {
