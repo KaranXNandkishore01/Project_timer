@@ -3,6 +3,47 @@ let secondsRemaining = 25 * 60; // default 25 mins
 let isRunning = false;
 let currentMode = 'work'; // 'work' or 'break'
 
+// Audio Controller
+const workMusicTracks = [
+    'music)1.mp3',
+    'music)2.mp3',
+    'music)3.mp3',
+    'music)4.mp3',
+    'music)5.mp3'
+];
+const breakMusicTrack = 'BreakMusic.mp3';
+let currentAudio = null;
+
+const playMusic = (mode) => {
+    if (currentAudio) {
+        currentAudio.pause();
+    }
+
+    if (mode === 'work') {
+        const randomTrack = workMusicTracks[Math.floor(Math.random() * workMusicTracks.length)];
+        currentAudio = new Audio(randomTrack);
+    } else {
+        currentAudio = new Audio(breakMusicTrack);
+    }
+
+    currentAudio.loop = true;
+    currentAudio.play().catch(err => console.log("Audio playback failed:", err));
+};
+
+const pauseMusic = () => {
+    if (currentAudio) {
+        currentAudio.pause();
+    }
+};
+
+const stopMusic = () => {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio = null;
+    }
+};
+
 const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60).toString().padStart(2, '0');
     const s = (seconds % 60).toString().padStart(2, '0');
@@ -27,6 +68,7 @@ export const initTimer = () => {
 
     const setMode = (mode) => {
         if (isRunning) pauseTimer();
+        stopMusic();
 
         currentMode = mode;
         if (mode === 'work') {
@@ -50,6 +92,8 @@ export const initTimer = () => {
         startBtn.disabled = true;
         pauseBtn.disabled = false;
 
+        playMusic(currentMode);
+
         timerInterval = setInterval(() => {
             if (secondsRemaining > 0) {
                 secondsRemaining--;
@@ -57,6 +101,7 @@ export const initTimer = () => {
             } else {
                 // Time's up
                 pauseTimer();
+                stopMusic();
                 alert(`Time's up for ${currentMode === 'work' ? 'work' : 'break'}!`);
                 // Auto switch mode visually
                 setMode(currentMode === 'work' ? 'break' : 'work');
@@ -71,12 +116,15 @@ export const initTimer = () => {
         clearInterval(timerInterval);
         timerInterval = null;
 
+        pauseMusic();
+
         startBtn.disabled = false;
         pauseBtn.disabled = true;
     };
 
     const resetTimer = () => {
         pauseTimer();
+        stopMusic();
         setMode(currentMode); // Reset to full duration of current mode
     };
 
