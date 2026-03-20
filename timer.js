@@ -12,26 +12,38 @@ const workMusicTracks = [
     '/music)5.mp3'
 ];
 const breakMusicTrack = '/BreakMusic.mp3';
-let currentAudio = null;
+let currentAudio = new Audio();
+currentAudio.loop = true;
 
 const playMusic = (mode) => {
-    if (currentAudio) {
-        currentAudio.pause();
-    }
-
+    let track;
     if (mode === 'work') {
-        const randomTrack = workMusicTracks[Math.floor(Math.random() * workMusicTracks.length)];
-        currentAudio = new Audio(randomTrack);
+        track = workMusicTracks[Math.floor(Math.random() * workMusicTracks.length)];
     } else {
-        currentAudio = new Audio(breakMusicTrack);
+        track = breakMusicTrack;
     }
 
-    currentAudio.loop = true;
-    currentAudio.play().catch(err => console.log("Audio playback failed:", err));
+    // Only change src if it's different to avoid interrupting playback if already correct
+    const targetSrc = window.location.origin + track;
+    if (currentAudio.src !== targetSrc) {
+        currentAudio.src = track;
+    }
+
+    const playPromise = currentAudio.play();
+    if (playPromise !== undefined) {
+        playPromise.catch(err => {
+            if (err.name === 'AbortError') {
+                // Ignore AbortError as it's common when play is interrupted
+                console.log("Audio play interrupted (AbortError)");
+            } else {
+                console.error("Audio playback failed:", err);
+            }
+        });
+    }
 };
 
 const pauseMusic = () => {
-    if (currentAudio) {
+    if (currentAudio && !currentAudio.paused) {
         currentAudio.pause();
     }
 };
@@ -40,7 +52,6 @@ const stopMusic = () => {
     if (currentAudio) {
         currentAudio.pause();
         currentAudio.currentTime = 0;
-        currentAudio = null;
     }
 };
 
